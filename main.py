@@ -1,3 +1,4 @@
+import openai
 from datetime import datetime, timedelta
 from typing import Union
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -26,6 +27,7 @@ database_engine = DatabaseEngine(Configuration.DATABASE_CONNECTION_PARAMETERS)
 app = FastAPI()
 bearer_scheme = HTTPBearer()
 pwd_context = CryptContext(schemes=[Configuration.CRYPT_SCHEME], deprecated="auto")
+openai.api_key = Configuration.OPENAI_AI_KEY
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
@@ -342,12 +344,9 @@ def chat(
     req: ChatPydantic.ChatRequest,
     current_student: Student = Depends(get_current_student),
 ):
-    import openai
-
-    openai.api_key = Configuration.OPENAI_AI_KEY
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": req.prompt}]
+        messages=[{"role": "user", "content": f"Ти вчитель хімії. Коротко опиши одним абзацом ось цю реакцію, надай повну формулу й врахуй, що відповідь повинна бути зрозуміла учням вищий класів з ООП (надай барвистий, майже \"грайливий\" проте чіткий, професійний і достатньо серйозний опис, із використанням опису багатьох емпіричних властивостей речовини на виході реакції: її хімічні та фізичні властивості тощо). Не використовуй у відповіді символів, які можуть погано відображатися (типу markdown тощо):{req.prompt}"}]
     )
 
     return {"response": response.choices[0].message.content}
