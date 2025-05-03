@@ -12,3 +12,4 @@ class AuthPydantic:
         access_token: str
         token_type: str = "bearer"
         user_type: str
+        user_id: int

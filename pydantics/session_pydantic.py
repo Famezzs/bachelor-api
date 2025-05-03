@@ -6,12 +6,10 @@ class SessionPydantic:
 
     class SessionRequest(BaseModel):
         student_id: int = Field(..., example=1)
-        date: datetime = Field(..., example="2025-04-27T12:34:56Z")
         length_minutes: int = Field(..., example=60)
         reactions_total: int = Field(..., example=60)
 
     class SessionResponse(BaseModel):
-        status: str
         session_id: int
 
     class SessionFilter(BaseModel):

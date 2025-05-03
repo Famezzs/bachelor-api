@@ -1,5 +1,5 @@
 import openai
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Union
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -187,7 +187,8 @@ def login_for_access_token(
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "user_type": user.user_type
+        "user_type": user.user_type,
+        "user_id": auth.user_id
     }
 
 @app.get(
@@ -299,7 +300,6 @@ def get_teacher_sessions(
     for session in sessions:
         student = db.query(Student).get(session.student_id)
         response.append({
-            "status": "success",
             "session_id": session.id,
             "date": session.date,
             "student_id": session.student_id,
@@ -326,14 +326,14 @@ def save_session(
             detail="student_id does not match token subject",
         )
     session_entry = StudySession(
-        date=req.date,
+        date=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         student_id=current_student.id,
         length_minutes=req.length_minutes,
         reactions_total=req.reactions_total
     )
     db.add(session_entry)
     db.commit()
-    return {"status": "success", "session_id": session_entry.id}
+    return {"session_id": session_entry.id}
 
 @app.post(
     "/api/v1/chat",
@@ -346,7 +346,7 @@ def chat(
 ):
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": f"Ти вчитель хімії. Коротко опиши одним абзацом ось цю реакцію, надай повну формулу й врахуй, що відповідь повинна бути зрозуміла учням вищий класів з ООП (надай барвистий, майже \"грайливий\" проте чіткий, професійний і достатньо серйозний опис, із використанням опису багатьох емпіричних властивостей речовини на виході реакції: її хімічні та фізичні властивості тощо). Не використовуй у відповіді символів, які можуть погано відображатися (типу markdown тощо):{req.prompt}"}]
+        messages=[{"role": "user", "content": f"Ти вчитель хімії. Коротко опиши одним коротким абзацом ось цю реакцію, надай повну формулу й врахуй, що відповідь повинна бути зрозуміла учням і студентам із ООП (надай чіткий, професійний і достатньо серйозний опис, із використанням опису багатьох емпіричних властивостей речовини на виході реакції: її хімічні та фізичні властивості тощо). Не використовуй у відповіді символів, які можуть погано відображатися (типу markdown тощо):{req.prompt}"}]
     )
 
     return {"response": response.choices[0].message.content}
