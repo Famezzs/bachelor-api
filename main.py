@@ -336,7 +336,7 @@ def save_session(
     return {"session_id": session_entry.id}
 
 @app.post(
-    "/api/v1/chat",
+    "/api/v1/reaction/full",
     response_model=ChatPydantic.ChatResponse,
     summary="Send a prompt to ChatGPT on behalf of the authenticated student",
 )
@@ -346,7 +346,29 @@ def chat(
 ):
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": f"Ти вчитель хімії. Коротко опиши одним коротким абзацом ось цю реакцію, надай повну формулу й врахуй, що відповідь повинна бути зрозуміла учням і студентам із ООП (надай чіткий, професійний і достатньо серйозний опис, із використанням опису багатьох емпіричних властивостей речовини на виході реакції: її хімічні та фізичні властивості тощо). Не використовуй у відповіді символів, які можуть погано відображатися (типу markdown тощо):{req.prompt}"}]
+        messages=[{"role": "user", "content": ("Ти вчитель хімії. Коротко опиши одним коротким абзацом ось цю реакцію,"
+        " надай повну формулу й врахуй, що відповідь повинна бути зрозуміла учням і студентам із ООП (надай чіткий, професійний"
+        " і достатньо серйозний опис, із використанням опису багатьох емпіричних властивостей речовини на виході реакції: її"
+        " хімічні та фізичні властивості тощо). Не використовуй у відповіді символів, які можуть погано відображатися "
+       f"(типу markdown тощо):{req.prompt}")}]
+    )
+
+    return {"response": response.choices[0].message.content}
+
+@app.post(
+    "/api/v1/reaction/empirical",
+    response_model=ChatPydantic.ChatResponse,
+    summary="Send a prompt to ChatGPT on behalf of the authenticated student",
+)
+def chat(
+    req: ChatPydantic.ChatRequest,
+    current_student: Student = Depends(get_current_student),
+):
+    response = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": ("Provide array of RGB color values in float based on"
+        " the reaction provided. Your response should contain ONLY the array value as plain value,"
+       f" no additional markdown or anything else, in one line. Example: ```[0.75, 0.39, 1]```. The formula:{req.prompt}")}]
     )
 
     return {"response": response.choices[0].message.content}
