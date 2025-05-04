@@ -368,7 +368,7 @@ def chat(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": ("Provide array of RGB color values in float based on"
         " the reaction provided. Your response should contain ONLY the array value as plain value,"
-       f" no additional markdown or anything else, in one line. Example: ```[0.75, 0.39, 1]```. The formula:{req.prompt}")}]
+       f" no additional markdown or anything else, in one line. Always add zeros till value has two numbers after '.' Example: ```[0.75, 0.39, 1.00]```. The formula:{req.prompt}")}]
     )
 
     return {"response": response.choices[0].message.content}
