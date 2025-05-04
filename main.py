@@ -345,7 +345,7 @@ def chat(
     current_student: Student = Depends(get_current_student),
 ):
     response = openai.chat.completions.create(
-        model="gpt-4o-mini",
+        model="o3",
         messages=[{"role": "user", "content": ("Ти вчитель хімії. Коротко опиши одним коротким абзацом ось цю реакцію,"
         " надай повну формулу й врахуй, що відповідь повинна бути зрозуміла учням і студентам із ООП (надай чіткий, професійний"
         " і достатньо серйозний опис, із використанням опису багатьох емпіричних властивостей речовини на виході реакції: її"
@@ -365,10 +365,14 @@ def chat(
     current_student: Student = Depends(get_current_student),
 ):
     response = openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": ("Provide array of RGB color values in float based on"
-        " the reaction provided. Your response should contain ONLY the array value as plain value,"
-       f" no additional markdown or anything else, in one line. Always add zeros till value has two numbers after '.' Example: ```[0.75, 0.39, 1.00]```. The formula:{req.prompt}")}]
+        model="o3-mini",
+        messages=[{"role": "user", "content": ("Provide array of RGBa color values in float based on"
+        " the reaction provided (chose realistically) and a single letter: 'p' when reaction creates precipitate; "
+        "'l' when reaction creates liquid; and 'g' when reaction creates gas - only one of those letters,"
+        "state combinations are not allowed. 'a' in RGBa determines transparency - it should not be lower "
+        "than 0.10. Your response should contain ONLY the array value as plain value,"
+        " no additional markdown or anything else, in one line. Always add zeros for floats till value "
+        f"has two numbers after '.' Example: ```[0.75, 0.39, 1.00, 0.45, g]```. The formula:{req.prompt}")}]
     )
 
     return {"response": response.choices[0].message.content}
