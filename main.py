@@ -345,13 +345,15 @@ def chat(
     current_student: Student = Depends(get_current_student),
 ):
     response = openai.chat.completions.create(
-        model="o3",
+        model="gpt-4o-mini",
         messages=[{"role": "user", "content": ("Ти вчитель хімії. Коротко опиши одним коротким абзацом ось цю реакцію,"
         " надай повну формулу й врахуй, що відповідь повинна бути зрозуміла учням і студентам із ООП (надай чіткий, професійний"
-        " і достатньо серйозний опис, із використанням опису багатьох емпіричних властивостей речовини на виході реакції: її"
-        " хімічні та фізичні властивості тощо). Не використовуй у відповіді символів, які можуть погано відображатися "
-       f"(типу markdown тощо):{req.prompt}")}]
+        " і достатньо серйозний проте елегантний опис, із використанням опису багатьох емпіричних властивостей речовини"
+        " на виході реакції: її хімічні та фізичні властивості тощо). Не використовуй у відповіді "
+       f"символів, які можуть погано відображатися (типу markdown, піднесення до степеня тощо):{req.prompt}")}]
     )
+
+    print(response.choices[0].message.content)
 
     return {"response": response.choices[0].message.content}
 
@@ -365,14 +367,16 @@ def chat(
     current_student: Student = Depends(get_current_student),
 ):
     response = openai.chat.completions.create(
-        model="o3-mini",
+        model="gpt-4o-mini",
         messages=[{"role": "user", "content": ("Provide array of RGBa color values in float based on"
         " the reaction provided (chose realistically) and a single letter: 'p' when reaction creates precipitate; "
         "'l' when reaction creates liquid; and 'g' when reaction creates gas - only one of those letters,"
         "state combinations are not allowed. 'a' in RGBa determines transparency - it should not be lower "
         "than 0.10. Your response should contain ONLY the array value as plain value,"
         " no additional markdown or anything else, in one line. Always add zeros for floats till value "
-        f"has two numbers after '.' Example: ```[0.75, 0.39, 1.00, 0.45, g]```. The formula:{req.prompt}")}]
+       f"has two numbers after '.' Example: ```[0.75, 0.39, 1.00, 0.45, g]```. The formula:{req.prompt}")}]
     )
+
+    print(response.choices[0].message.content)
 
     return {"response": response.choices[0].message.content}
